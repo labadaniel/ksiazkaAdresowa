@@ -36,7 +36,7 @@ string wyciagnijStringa(string uzytkownik ) {
     return 0;
 }
 
-string potnijUzytkownika(string uzytkownik){
+string potnijUzytkownika(string uzytkownik) {
     int dlugoscLinii = uzytkownik.length();
     for(int i = 0; i<dlugoscLinii; i++) {
         if(uzytkownik[i]=='|') {
@@ -288,42 +288,49 @@ void wyswietlWszystkich (vector <Osoba> &ksiazkaAdresowa) {
     }
 }
 
-void wczytajOsobyZKsiazkiAdresowej (vector <Osoba> &ksiazkaAdresowa) {
+void wczytajOsobyZKsiazkiAdresowej (vector <Osoba> &ksiazkaAdresowa, int idZalogowanegoUzytkownika) {
 
     ifstream plik("ksiazka_adresowa.txt");
     string uzytkownik;
-    string tempUzytkownik = uzytkownik;
+
+    int tempIdZalogowanegoUzytkownika;
+
+    //tempUzytkownik = potnijUzytkownika(tempUzytkownik);
 
 
     int i = 0;
     while(getline(plik,uzytkownik)) {
+        string tempUzytkownik = uzytkownik;
+        tempUzytkownik = potnijUzytkownika(tempUzytkownik);
+        tempIdZalogowanegoUzytkownika = atoi(wyciagnijStringa(tempUzytkownik).c_str());
 
-        ksiazkaAdresowa.push_back(Osoba());
+        if(tempIdZalogowanegoUzytkownika == idZalogowanegoUzytkownika) {
 
-        ksiazkaAdresowa[i].id = atoi(wyciagnijStringa(uzytkownik).c_str());
-        uzytkownik = potnijUzytkownika(uzytkownik);
+            ksiazkaAdresowa.push_back(Osoba());
 
-        ksiazkaAdresowa[i].idUzytkownika = atoi(wyciagnijStringa(uzytkownik).c_str());
-        uzytkownik = potnijUzytkownika(uzytkownik);
+            ksiazkaAdresowa[i].id = atoi(wyciagnijStringa(uzytkownik).c_str());
+            uzytkownik = potnijUzytkownika(uzytkownik);
 
-        ksiazkaAdresowa[i].imie = wyciagnijStringa(uzytkownik);
-        uzytkownik = potnijUzytkownika(uzytkownik);
+            ksiazkaAdresowa[i].idUzytkownika = atoi(wyciagnijStringa(uzytkownik).c_str());
+            uzytkownik = potnijUzytkownika(uzytkownik);
 
-        ksiazkaAdresowa[i].nazwisko = wyciagnijStringa(uzytkownik);
-        uzytkownik = potnijUzytkownika(uzytkownik);
+            ksiazkaAdresowa[i].imie = wyciagnijStringa(uzytkownik);
+            uzytkownik = potnijUzytkownika(uzytkownik);
 
-        ksiazkaAdresowa[i].nrTelefonu = wyciagnijStringa(uzytkownik);
-        uzytkownik = potnijUzytkownika(uzytkownik);
+            ksiazkaAdresowa[i].nazwisko = wyciagnijStringa(uzytkownik);
+            uzytkownik = potnijUzytkownika(uzytkownik);
 
-        ksiazkaAdresowa[i].email = wyciagnijStringa(uzytkownik);
-        uzytkownik = potnijUzytkownika(uzytkownik);
+            ksiazkaAdresowa[i].nrTelefonu = wyciagnijStringa(uzytkownik);
+            uzytkownik = potnijUzytkownika(uzytkownik);
 
-        ksiazkaAdresowa[i].adres = wyciagnijStringa(uzytkownik);
-        i++;
+            ksiazkaAdresowa[i].email = wyciagnijStringa(uzytkownik);
+            uzytkownik = potnijUzytkownika(uzytkownik);
 
+            ksiazkaAdresowa[i].adres = wyciagnijStringa(uzytkownik);
+            i++;
+        }
     }
     plik.close();
-
 }
 
 void zmienImie (vector <Osoba> &ksiazkaAdresowa, int idOsoby) {
@@ -446,7 +453,8 @@ int main() {
     char wybor;
 
     iloscUzytkownikow = wczytajUzytkownikow(uzytkownicy);
-    wczytajOsobyZKsiazkiAdresowej ( ksiazkaAdresowa );
+    //wczytajOsobyZKsiazkiAdresowej ( ksiazkaAdresowa);
+
     while(true) {
         if(idZalogowanegoUzytkownika == 0) {
             system("cls");
@@ -459,6 +467,7 @@ int main() {
                 iloscUzytkownikow = rejestracja(uzytkownicy, iloscUzytkownikow);
             } else if(wybor=='2') {
                 idZalogowanegoUzytkownika = logowanie(uzytkownicy, iloscUzytkownikow);
+                wczytajOsobyZKsiazkiAdresowej ( ksiazkaAdresowa, idZalogowanegoUzytkownika);
             } else if(wybor=='9') {
                 exit(0);
             }
@@ -543,5 +552,6 @@ int main() {
             }
         }
     }
+
     return 0;
 }
