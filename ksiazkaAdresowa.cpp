@@ -167,6 +167,7 @@ void wyswietl (vector <Osoba> &ksiazkaAdresowa, int i) {
 }
 
 int nadajID (vector <Osoba> &ksiazkaAdresowa) {
+
     int ID = 1;
     int index = ksiazkaAdresowa.size();
     if(ksiazkaAdresowa.empty())
@@ -184,35 +185,84 @@ int nadajID (vector <Osoba> &ksiazkaAdresowa) {
     return 0;
 }
 
+void wczytajWszystkieOsobyZKsiazkiAdresowej (vector <Osoba> &ksiazkaAdresowa) {
 
-void nadpiszPlikTekstowy(vector <Osoba> &ksiazkaAdresowa) {
-    int iloscOsob = ksiazkaAdresowa.size();
-    fstream plik;
-    plik.open("ksiazka_adresowa.txt", ios::out);
+    ifstream plik("ksiazka_adresowa.txt");
+    string uzytkownik;
 
-    if(!plik)
+    int i = 0;
+    while(getline(plik,uzytkownik)) {
+
+            ksiazkaAdresowa.push_back(Osoba());
+
+            ksiazkaAdresowa[i].id = atoi(wyciagnijStringa(uzytkownik).c_str());
+            uzytkownik = potnijUzytkownika(uzytkownik);
+
+            ksiazkaAdresowa[i].idUzytkownika = atoi(wyciagnijStringa(uzytkownik).c_str());
+            uzytkownik = potnijUzytkownika(uzytkownik);
+
+            ksiazkaAdresowa[i].imie = wyciagnijStringa(uzytkownik);
+            uzytkownik = potnijUzytkownika(uzytkownik);
+
+            ksiazkaAdresowa[i].nazwisko = wyciagnijStringa(uzytkownik);
+            uzytkownik = potnijUzytkownika(uzytkownik);
+
+            ksiazkaAdresowa[i].nrTelefonu = wyciagnijStringa(uzytkownik);
+            uzytkownik = potnijUzytkownika(uzytkownik);
+
+            ksiazkaAdresowa[i].email = wyciagnijStringa(uzytkownik);
+            uzytkownik = potnijUzytkownika(uzytkownik);
+
+            ksiazkaAdresowa[i].adres = wyciagnijStringa(uzytkownik);
+            i++;
+        }
+
+    plik.close();
+}
+
+void nadpiszPlikTekstowy(vector <Osoba> &tymczasowaKsiazkaAdresowa) {
+    int iloscOsob = tymczasowaKsiazkaAdresowa.size();
+    vector <Osoba> pelnaKsiazkaAdresowa;
+    ifstream plikOryginalny;
+    ofstream plikTymczasowy;
+    plikOryginalny.open("ksiazka_adresowa.txt");
+    plikTymczasowy.open("tymczasowa_ksiazka_adresowa.txt");
+
+    if(!plikOryginalny && !plikTymczasowy)
         cout << "Nie udalo sie otworzyc pliku";
 
-    for(int i=0; i<iloscOsob; i++) {
-        plik<<ksiazkaAdresowa[i].id<< "|" << ksiazkaAdresowa[i].idUzytkownika<< "|"<< ksiazkaAdresowa[i].imie <<
-            "|" << ksiazkaAdresowa[i].nazwisko << "|" << ksiazkaAdresowa[i].nrTelefonu <<
-            "|" << ksiazkaAdresowa[i].email << "|" << ksiazkaAdresowa[i].adres << "|" << endl;
-    }
-    plik.close();
+    wczytajWszystkieOsobyZKsiazkiAdresowej(pelnaKsiazkaAdresowa);
+    int iloscOsobWPelnejKsiazce = pelnaKsiazkaAdresowa.size();
+
+    int j=0;
+
+        for(int i=0; i<iloscOsobWPelnejKsiazce; i++){
+            if(pelnaKsiazkaAdresowa[i].id != tymczasowaKsiazkaAdresowa[j].id){
+                plikTymczasowy<<pelnaKsiazkaAdresowa[i].id<< "|" << pelnaKsiazkaAdresowa[i].idUzytkownika<< "|"<< pelnaKsiazkaAdresowa[i].imie <<
+                "|" << pelnaKsiazkaAdresowa[i].nazwisko << "|" << pelnaKsiazkaAdresowa[i].nrTelefonu <<
+                "|" << pelnaKsiazkaAdresowa[i].email << "|" << pelnaKsiazkaAdresowa[i].adres << "|" << endl;
+            }else{
+                plikTymczasowy<<tymczasowaKsiazkaAdresowa[j].id<< "|" << tymczasowaKsiazkaAdresowa[j].idUzytkownika<< "|"<< tymczasowaKsiazkaAdresowa[j].imie <<
+            "|" << tymczasowaKsiazkaAdresowa[j].nazwisko << "|" << tymczasowaKsiazkaAdresowa[j].nrTelefonu <<
+            "|" << tymczasowaKsiazkaAdresowa[j].email << "|" << tymczasowaKsiazkaAdresowa[j].adres << "|" << endl;
+            j++;
+            }
+        }
+
+    plikTymczasowy.close();
+    plikOryginalny.close();
+    pelnaKsiazkaAdresowa.erase(pelnaKsiazkaAdresowa.begin(), pelnaKsiazkaAdresowa.end());
 }
 
 void dodajOsobe (vector <Osoba> &ksiazkaAdresowa, int idZalogowanegoUzytkownika) {
     string imie, nazwisko, email, adres;
     string nrTelefonu;
     int iloscOsob = ksiazkaAdresowa.size();
-    cout << idZalogowanegoUzytkownika << " " << iloscOsob << " " << ksiazkaAdresowa.size() << endl;
-
     int id = nadajID (ksiazkaAdresowa);
     ksiazkaAdresowa.push_back(Osoba());
 
 
     cout<<"Podaj imie: ";
-
     getline(cin>>ws, imie);
     cout<<"Podaj nazwisko: ";
     cin.sync();
@@ -236,7 +286,6 @@ void dodajOsobe (vector <Osoba> &ksiazkaAdresowa, int idZalogowanegoUzytkownika)
     ksiazkaAdresowa[iloscOsob].adres = adres;
 
     sort(ksiazkaAdresowa.begin(), ksiazkaAdresowa.end(), sortowanieKsiazki);
-    cout << idZalogowanegoUzytkownika << " " << iloscOsob << " " << id << endl;
     nadpiszPlikTekstowy(ksiazkaAdresowa);
     cout<<endl<<"Osoba zostala dodana."<<endl;
     Sleep(1500);
@@ -294,9 +343,6 @@ void wczytajOsobyZKsiazkiAdresowej (vector <Osoba> &ksiazkaAdresowa, int idZalog
     string uzytkownik;
 
     int tempIdZalogowanegoUzytkownika;
-
-    //tempUzytkownik = potnijUzytkownika(tempUzytkownik);
-
 
     int i = 0;
     while(getline(plik,uzytkownik)) {
@@ -446,7 +492,7 @@ int usunOsobeZKsiazkiAdresowej (vector <Osoba> &ksiazkaAdresowa, int idOsoby) {
 int main() {
     vector<Osoba> ksiazkaAdresowa;
     vector<Uzytkownik>uzytkownicy;
-    int iloscOsob = 0;
+   // int iloscOsob = 0;
     int idOsoby = 0;
     int idZalogowanegoUzytkownika = 0;
     int iloscUzytkownikow = 0;
@@ -474,6 +520,7 @@ int main() {
         } else {
 
             system("cls");
+
             cout << "1. Dodaj adresata" << endl;
             cout << "2. Wyszukaj po imieniu" << endl;
             cout << "3. Wyszukaj po nazwisku" << endl;
@@ -548,6 +595,7 @@ int main() {
 
             case '9':
                 idZalogowanegoUzytkownika = 0;
+                ksiazkaAdresowa.erase(ksiazkaAdresowa.begin(), ksiazkaAdresowa.end());
                 break;
             }
         }
@@ -555,3 +603,9 @@ int main() {
 
     return 0;
 }
+
+
+
+
+
+
