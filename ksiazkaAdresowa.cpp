@@ -166,29 +166,12 @@ void wyswietl (vector <Osoba> &ksiazkaAdresowa, int i) {
     cout << endl;
 }
 
-int nadajID (vector <Osoba> &ksiazkaAdresowa) {
-
-    int ID = 1;
-    int index = ksiazkaAdresowa.size();
-    if(ksiazkaAdresowa.empty())
-        return 1;
-    else if(ksiazkaAdresowa[index-1].id == index)
-        return ksiazkaAdresowa[index-1].id + 1;
-    else
-        for (int i = 0; i<index; i++) {
-            if (ksiazkaAdresowa[i].id > ID)
-
-                return ID;
-            else
-                ID++;
-        }
-    return 0;
-}
-
 void wczytajWszystkieOsobyZKsiazkiAdresowej (vector <Osoba> &ksiazkaAdresowa) {
 
     ifstream plik("ksiazka_adresowa.txt");
     string uzytkownik;
+    if(!plik)
+        cout << "Nie udalo sie otworzyc pliku";
 
     int i = 0;
     while(getline(plik,uzytkownik)) {
@@ -220,6 +203,46 @@ void wczytajWszystkieOsobyZKsiazkiAdresowej (vector <Osoba> &ksiazkaAdresowa) {
     plik.close();
 }
 
+
+int nadajID (vector <Osoba> &ksiazkaAdresowa) {
+
+    int ID = 1;
+    int index = ksiazkaAdresowa.size();
+
+    if(ksiazkaAdresowa.empty())
+        return 1;
+    else if(ksiazkaAdresowa[index-1].id == index){
+
+        return ksiazkaAdresowa[index-1].id + 1;
+    }
+    else
+        for (int i = 0; i<index; i++) {
+            if (ksiazkaAdresowa[i].id > ID){
+
+                return ID;
+            }
+            else
+                ID++;
+        }
+    return 0;
+}
+ void dodajOsobeDoPlikuGlownego(vector <Osoba> &ksiazkaAdresowa){
+     fstream plik;
+     plik.open("ksiazka_adresowa.txt", ios::out);
+     int ileWszystkichOsobWKsiazce = ksiazkaAdresowa.size();
+
+     if(!plik)
+        cout << "Nie udalo sie otworzyc pliku";
+
+     for (int i=0; i<ileWszystkichOsobWKsiazce; i++){
+            plik<<ksiazkaAdresowa[i].id<< "|" << ksiazkaAdresowa[i].idUzytkownika<< "|"<< ksiazkaAdresowa[i].imie <<
+                "|" << ksiazkaAdresowa[i].nazwisko << "|" << ksiazkaAdresowa[i].nrTelefonu <<
+                "|" << ksiazkaAdresowa[i].email << "|" << ksiazkaAdresowa[i].adres << "|" << endl;
+     }
+     plik.close();
+
+ }
+
 void nadpiszPlikTekstowy(vector <Osoba> &tymczasowaKsiazkaAdresowa) {
     int iloscOsob = tymczasowaKsiazkaAdresowa.size();
     vector <Osoba> pelnaKsiazkaAdresowa;
@@ -233,6 +256,7 @@ void nadpiszPlikTekstowy(vector <Osoba> &tymczasowaKsiazkaAdresowa) {
 
     wczytajWszystkieOsobyZKsiazkiAdresowej(pelnaKsiazkaAdresowa);
     int iloscOsobWPelnejKsiazce = pelnaKsiazkaAdresowa.size();
+
 
     int j=0;
 
@@ -254,13 +278,16 @@ void nadpiszPlikTekstowy(vector <Osoba> &tymczasowaKsiazkaAdresowa) {
     pelnaKsiazkaAdresowa.erase(pelnaKsiazkaAdresowa.begin(), pelnaKsiazkaAdresowa.end());
 }
 
-void dodajOsobe (vector <Osoba> &ksiazkaAdresowa, int idZalogowanegoUzytkownika) {
+void dodajOsobe (int idZalogowanegoUzytkownika) {
     string imie, nazwisko, email, adres;
     string nrTelefonu;
+    vector <Osoba> ksiazkaAdresowa;
+    wczytajWszystkieOsobyZKsiazkiAdresowej(ksiazkaAdresowa);
     int iloscOsob = ksiazkaAdresowa.size();
-    int id = nadajID (ksiazkaAdresowa);
-    ksiazkaAdresowa.push_back(Osoba());
 
+    int id = nadajID (ksiazkaAdresowa);
+    system("pause");
+    ksiazkaAdresowa.push_back(Osoba());
 
     cout<<"Podaj imie: ";
     getline(cin>>ws, imie);
@@ -286,7 +313,9 @@ void dodajOsobe (vector <Osoba> &ksiazkaAdresowa, int idZalogowanegoUzytkownika)
     ksiazkaAdresowa[iloscOsob].adres = adres;
 
     sort(ksiazkaAdresowa.begin(), ksiazkaAdresowa.end(), sortowanieKsiazki);
-    nadpiszPlikTekstowy(ksiazkaAdresowa);
+
+    dodajOsobeDoPlikuGlownego(ksiazkaAdresowa);
+    ksiazkaAdresowa.erase(ksiazkaAdresowa.begin(), ksiazkaAdresowa.end());
     cout<<endl<<"Osoba zostala dodana."<<endl;
     Sleep(1500);
 
@@ -492,6 +521,7 @@ int usunOsobeZKsiazkiAdresowej (vector <Osoba> &ksiazkaAdresowa, int idOsoby) {
 int main() {
     vector<Osoba> ksiazkaAdresowa;
     vector<Uzytkownik>uzytkownicy;
+
    // int iloscOsob = 0;
     int idOsoby = 0;
     int idZalogowanegoUzytkownika = 0;
@@ -536,7 +566,9 @@ int main() {
 
             switch (wybor) {
             case '1':
-                dodajOsobe (ksiazkaAdresowa, idZalogowanegoUzytkownika);
+                dodajOsobe (idZalogowanegoUzytkownika);
+                ksiazkaAdresowa.erase(ksiazkaAdresowa.begin(), ksiazkaAdresowa.end());
+                wczytajOsobyZKsiazkiAdresowej ( ksiazkaAdresowa, idZalogowanegoUzytkownika);
                 break;
             case '2':
                 wyszukajOsobePoImieniu (ksiazkaAdresowa);
